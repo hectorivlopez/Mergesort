@@ -9,14 +9,14 @@ import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 import java.util.stream.Stream;
 
-public class ForkJoinMergeSort extends RecursiveTask<int[]> {
+public class ForkJoinMergeSortTask extends RecursiveTask<int[]> {
     private int[] array;
     private int length;
 
 
     private static final int THRESHOLD = 2;
 
-    public ForkJoinMergeSort(int[] array, int length) {
+    public ForkJoinMergeSortTask(int[] array, int length) {
         this.array = array;
         this.length = length;
 
@@ -27,7 +27,7 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]> {
             int[] left = Arrays.copyOfRange(array, 0,length / 2);
             int[] right = Arrays.copyOfRange(array, length / 2, length );
         if (array.length > THRESHOLD) {
-            Collection<ForkJoinMergeSort> subtasks = ForkJoinTask.invokeAll(createSubtasks());
+            Collection<ForkJoinMergeSortTask> subtasks = ForkJoinTask.invokeAll(createSubtasks());
             Stream<int[]> arrays = subtasks.stream().map(ForkJoinTask::join);
             this.array = arrays.flatMapToInt(Arrays::stream).toArray();
         }
@@ -35,14 +35,14 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]> {
             return merge(this.array, left, right);
     }
 
-    private Collection<ForkJoinMergeSort> createSubtasks() {
-        List<ForkJoinMergeSort> dividedTasks = new ArrayList<>();
+    private Collection<ForkJoinMergeSortTask> createSubtasks() {
+        List<ForkJoinMergeSortTask> dividedTasks = new ArrayList<>();
 
         int[] left = Arrays.copyOfRange(array, 0,length / 2);
         int[] right = Arrays.copyOfRange(array, length / 2, length );
 
-        dividedTasks.add(new ForkJoinMergeSort(left, left.length));
-        dividedTasks.add(new ForkJoinMergeSort(right, right.length));
+        dividedTasks.add(new ForkJoinMergeSortTask(left, left.length));
+        dividedTasks.add(new ForkJoinMergeSortTask(right, right.length));
 
         return dividedTasks;
     }

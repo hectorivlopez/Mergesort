@@ -1,7 +1,7 @@
 package controller;
 
-import model.ForkJoinAction;
-import model.ForkJoinMergeSort;
+import model.ForkJoinMergeSortAction;
+import model.ForkJoinMergeSortTask;
 import model.MergeSort;
 import view.Window;
 import model.App;
@@ -10,7 +10,6 @@ import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.Random;
 
 public class WindowController {
     public static Window window;
@@ -128,10 +127,7 @@ public class WindowController {
     public static void mergeSort() {
         int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
 
-        MergeSort mergeSort = new MergeSort(newArray);
-        long time = mergeSort.sort();
-
-        String timeStr = String.valueOf(time);
+        long time = App.mergeSort(newArray);
         window.getMergeSortLabel().setText(time + " millis");
 
         String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
@@ -140,13 +136,13 @@ public class WindowController {
 
     public static void forkJoin() {
         int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
-        ForkJoinMergeSort mergeSort = new ForkJoinMergeSort(newArray, newArray.length);
+        /* ForkJoinMergeSortTask mergeSort = new ForkJoinMergeSortTask(newArray, newArray.length);
 
         long initTime = System.currentTimeMillis();
         int[] sortedArray = mergeSort.invoke();
-        long endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis(); */
 
-        String time = String.valueOf(endTime - initTime);
+        long time = App.forkJoinMergeSort(newArray);
         window.getForkJoinLabel().setText(time + " millis");
 
         String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
@@ -155,7 +151,7 @@ public class WindowController {
     }
 
     public static void executorService() {
-
+        window.getOutputArrayTxtArea().setText("No");
     }
 
 }
