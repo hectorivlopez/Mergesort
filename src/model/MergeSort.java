@@ -3,10 +3,12 @@ package model;
 import java.util.Arrays;
 
 public class MergeSort {
-    private int[] inputArray;
+    private final int[] inputArray;
+    private final int length;
 
-    public MergeSort(int[] inputArray) {
+    public MergeSort(int[] inputArray, int length) {
         this.inputArray = inputArray;
+        this.length = length;
     }
 
     public void merge(int[] array, int[] left, int[] right, int leftLength, int rightLength) {
@@ -49,11 +51,7 @@ public class MergeSort {
         merge(array, left, right, left.length, right.length);
     }
 
-    public long sort() {
-        long initTime = System.currentTimeMillis();
-        this.divide(this.inputArray, this.inputArray.length);
-        long endTime = System.currentTimeMillis();
-
-        return endTime - initTime;
+    public void sort() {
+        this.divide(this.inputArray, this.length);
     }
 }

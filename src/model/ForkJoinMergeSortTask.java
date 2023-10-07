@@ -12,8 +12,6 @@ import java.util.stream.Stream;
 public class ForkJoinMergeSort extends RecursiveTask<int[]> {
     private int[] array;
     private int length;
-    private int[] left;
-    private int[] right;
 
 
     private static final int THRESHOLD = 2;
@@ -22,24 +20,26 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]> {
         this.array = array;
         this.length = length;
 
-        this.left = Arrays.copyOfRange(array, 0,length / 2);
-        this.right = Arrays.copyOfRange(array, length / 2, length );
+
     }
 
     protected int[] compute() {
+            int[] left = Arrays.copyOfRange(array, 0,length / 2);
+            int[] right = Arrays.copyOfRange(array, length / 2, length );
         if (array.length > THRESHOLD) {
             Collection<ForkJoinMergeSort> subtasks = ForkJoinTask.invokeAll(createSubtasks());
             Stream<int[]> arrays = subtasks.stream().map(ForkJoinTask::join);
             this.array = arrays.flatMapToInt(Arrays::stream).toArray();
-
-            this.left = Arrays.copyOfRange(array, 0,length / 2);
-            this.right = Arrays.copyOfRange(array, length / 2, length );
         }
-            return merge();
+
+            return merge(this.array, left, right);
     }
 
     private Collection<ForkJoinMergeSort> createSubtasks() {
         List<ForkJoinMergeSort> dividedTasks = new ArrayList<>();
+
+        int[] left = Arrays.copyOfRange(array, 0,length / 2);
+        int[] right = Arrays.copyOfRange(array, length / 2, length );
 
         dividedTasks.add(new ForkJoinMergeSort(left, left.length));
         dividedTasks.add(new ForkJoinMergeSort(right, right.length));
@@ -47,10 +47,10 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]> {
         return dividedTasks;
     }
 
-    private int[] merge() {
+    private int[] merge(int[] array, int[] left, int[] right) {
         int i = 0, j = 0, k = 0;
 
-        while (i < this.left.length && j < this.right.length) {
+        while (i < left.length && j < right.length) {
             if (left[i] <= right[j]) {
                 array[k] = left[i];
                 i++;
@@ -63,16 +63,16 @@ public class ForkJoinMergeSort extends RecursiveTask<int[]> {
             }
         }
 
-        while (i < this.left.length) {
+        while (i < left.length) {
             array[k] = left[i];
             i++;
             k++;
         }
-        while (j < this.right.length) {
+        while (j < right.length) {
             array[k] = right[j];
             j++;
             k++;
         }
-        return this.array;
+        return array;
     }
 }
