@@ -1,5 +1,6 @@
 package controller;
 
+import model.ForkJoinAction;
 import model.ForkJoinMergeSort;
 import model.MergeSort;
 import view.Window;
@@ -138,7 +139,18 @@ public class WindowController {
     }
 
     public static void forkJoin() {
+        int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
+        ForkJoinMergeSort mergeSort = new ForkJoinMergeSort(newArray, newArray.length);
 
+        long initTime = System.currentTimeMillis();
+        int[] sortedArray = mergeSort.invoke();
+        long endTime = System.currentTimeMillis();
+
+        String time = String.valueOf(endTime - initTime);
+        window.getForkJoinLabel().setText(time + " millis");
+
+        String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
+        window.getOutputArrayTxtArea().setText(arrayStr);
 
     }
 
