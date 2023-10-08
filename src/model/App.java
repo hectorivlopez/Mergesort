@@ -45,7 +45,6 @@ public class App {
         mergeSort.sort();
         long endTime = System.currentTimeMillis();
 
-        Thread.sleep(1000);
         mergeSort.getExecutor().shutdown();
         mergeSort.getExecutor().awaitTermination(1000, TimeUnit.MILLISECONDS);
 
