@@ -12,8 +12,8 @@ public class ExecutorServiceMergeSort {
     private int[] array;
     private final int length;
 
+
     public ExecutorServiceMergeSort(int[] array, int length) {
-        int processors = Runtime.getRuntime().availableProcessors();
         this.executor = Executors.newCachedThreadPool();
         this.array = array;
         this.length = length;
@@ -21,7 +21,7 @@ public class ExecutorServiceMergeSort {
 
     public void sort() throws InterruptedException {
         Collection<ExecutorServiceTask> tasks = new ArrayList<>();
-        tasks.add(new ExecutorServiceTask(this.executor, this.array, this.length));
+        tasks.add(new ExecutorServiceTask(this.executor, this.array, this.length, 0));
         this.executor.invokeAll(tasks);
     }
 

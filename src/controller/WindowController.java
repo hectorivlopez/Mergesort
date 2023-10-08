@@ -155,7 +155,12 @@ public class WindowController {
         int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
 
         long time = App.executorServiceMergeSort(newArray);;
-        window.getExecutorServiceLabel().setText(time + " millis");
+        if(time != -1) {
+            window.getExecutorServiceLabel().setText(time + " millis");
+        }
+        else {
+            window.getExecutorServiceLabel().setText("Error");
+        }
 
         String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
         window.getOutputArrayTxtArea().setText(arrayStr);

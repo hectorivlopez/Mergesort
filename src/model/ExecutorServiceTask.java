@@ -10,10 +10,13 @@ public class ExecutorServiceTask implements Callable<int[]> {
     ExecutorService executor;
     private int[] array;
     private int length;
-    public ExecutorServiceTask(ExecutorService executor, int[] array, int length) {
+    private static final int THRESHOLD = 4;
+    private int count;
+    public ExecutorServiceTask(ExecutorService executor, int[] array, int length, int count) {
         this.executor = executor;
         this.array = array;
         this.length = length;
+        this.count = count;
     }
 
     @Override
@@ -22,10 +25,19 @@ public class ExecutorServiceTask implements Callable<int[]> {
         int[] right = Arrays.copyOfRange(array, length / 2, length );
 
         if(this.length > 2) {
-            Collection<ExecutorServiceTask> tasks = new ArrayList<>();
-            tasks.add(new ExecutorServiceTask(executor, left, left.length));
-            tasks.add(new ExecutorServiceTask(executor, right, right.length));
-            this.executor.invokeAll(tasks);
+            if(this.count < THRESHOLD) {
+                this.count += 2;
+                Collection<ExecutorServiceTask> tasks = new ArrayList<>();
+                tasks.add(new ExecutorServiceTask(executor, left, left.length, this.count));
+                tasks.add(new ExecutorServiceTask(executor, right, right.length, this.count));
+                this.executor.invokeAll(tasks);
+            }
+            else {
+                MergeSort mergeLeft = new MergeSort(left, left.length);
+                MergeSort mergeRight = new MergeSort(right, right.length);
+                mergeLeft.sort();
+                mergeRight.sort();
+            }
         }
 
         merge(left, right);
