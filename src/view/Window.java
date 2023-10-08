@@ -13,6 +13,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 public class Window extends JFrame {
     private JPanel bgPanel;
@@ -128,7 +129,7 @@ public class Window extends JFrame {
         fastModeBtn.setFocusPainted(false);
         fastModeBtn.setBackground(new Color(50,50,50));
         fastModeBtn.setForeground(Color.WHITE);
-        fastModeBtn.setText("Modo Rápido");
+        fastModeBtn.setText("Modo Recio");
         fastModeBtn.addActionListener(e -> {
             WindowController.fastMode();
         });
@@ -185,7 +186,11 @@ public class Window extends JFrame {
         executorServiceBtn.setText("ExecutorService");
         executorServiceBtn.setEnabled(false);
         executorServiceBtn.addActionListener(e -> {
-            WindowController.executorService();
+            try {
+                WindowController.executorService();
+            } catch (InterruptedException | ExecutionException ex) {
+                throw new RuntimeException(ex);
+            }
         });
         bgPanel.add(executorServiceBtn);
 

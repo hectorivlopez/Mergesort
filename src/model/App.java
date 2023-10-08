@@ -1,7 +1,13 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class App {
     public static int[] inputArray;
@@ -29,6 +35,19 @@ public class App {
         long initTime = System.currentTimeMillis();
         mergeSort.invoke();
         long endTime = System.currentTimeMillis();
+
+        return endTime - initTime;
+    }
+
+    public static long executorServiceMergeSort(int[] array) throws InterruptedException, ExecutionException {
+        ExecutorServiceMergeSort mergeSort = new ExecutorServiceMergeSort(array, array.length);
+        long initTime = System.currentTimeMillis();
+        mergeSort.sort();
+        long endTime = System.currentTimeMillis();
+
+        Thread.sleep(1000);
+        mergeSort.getExecutor().shutdown();
+        mergeSort.getExecutor().awaitTermination(1000, TimeUnit.MILLISECONDS);
 
         return endTime - initTime;
     }

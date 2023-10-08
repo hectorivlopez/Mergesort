@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 public class WindowController {
     public static Window window;
@@ -150,8 +151,14 @@ public class WindowController {
 
     }
 
-    public static void executorService() {
-        window.getOutputArrayTxtArea().setText("No");
+    public static void executorService() throws ExecutionException, InterruptedException {
+        int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
+
+        long time = App.executorServiceMergeSort(newArray);;
+        window.getExecutorServiceLabel().setText(time + " millis");
+
+        String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
+        window.getOutputArrayTxtArea().setText(arrayStr);
     }
 
 }
