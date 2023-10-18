@@ -2,8 +2,11 @@ package view;
 
 import components.CustomScrollBar;
 import controller.WindowController;
+import model.App;
 import model.MergeSort;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.ParagraphView;
@@ -11,6 +14,7 @@ import javax.swing.text.ZoneView;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -33,7 +37,7 @@ public class Window extends JFrame {
     private JLabel executorServiceLabel;
 
 
-    public Window() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public Window() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException, ExecutionException, InterruptedException {
         UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         UIManager.put("Button.arc", 10);
 
@@ -49,6 +53,7 @@ public class Window extends JFrame {
 
         initComponents();
 
+        App.warmUpThreadPools();
         setVisible(true);
     }
 
@@ -107,7 +112,17 @@ public class Window extends JFrame {
         createArrayBtn.setText("Generar Array");
         createArrayBtn.setEnabled(false);
         createArrayBtn.addActionListener(e -> {
-            WindowController.generateArray();
+            try {
+                WindowController.generateArray();
+            } catch (UnsupportedAudioFileException ex) {
+                throw new RuntimeException(ex);
+            } catch (LineUnavailableException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         });
         bgPanel.add(createArrayBtn);
 
@@ -129,7 +144,7 @@ public class Window extends JFrame {
         fastModeBtn.setFocusPainted(false);
         fastModeBtn.setBackground(new Color(50,50,50));
         fastModeBtn.setForeground(Color.WHITE);
-        fastModeBtn.setText("Modo Recio");
+        fastModeBtn.setText("Modo Rápido");
         fastModeBtn.addActionListener(e -> {
             WindowController.fastMode();
         });
@@ -157,7 +172,7 @@ public class Window extends JFrame {
         mergeSortBtn.setFocusPainted(false);
         mergeSortBtn.setBackground(new Color(50,50,50));
         mergeSortBtn.setForeground(Color.WHITE);
-        mergeSortBtn.setText("MergeSort");
+        mergeSortBtn.setText("Secuencial");
         mergeSortBtn.setEnabled(false);
         mergeSortBtn.addActionListener(e -> {
             WindowController.mergeSort();

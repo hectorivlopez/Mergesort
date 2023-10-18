@@ -1,13 +1,13 @@
 package controller;
 
-import model.ForkJoinMergeSortAction;
-import model.ForkJoinMergeSortTask;
-import model.MergeSort;
 import view.Window;
 import model.App;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 public class WindowController {
     public static Window window;
 
-    public static void start() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void start() throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException, ExecutionException, InterruptedException {
         window = new Window();
     }
 
@@ -35,23 +35,14 @@ public class WindowController {
     public static void format(KeyEvent e) {
         char inputChar = e.getKeyChar();
         if(inputChar >= '0' &&  inputChar <= '9') {
-            StringBuilder format = new StringBuilder();
+
             String inputStr = window.getInputSizeTxt().getText().replaceAll(",", "");
+            long input = Long.parseLong(inputStr);
 
-            for(int i = 0; i < inputStr.length(); i++) {
-                format.append("#");
-                if((i + 1) % 3 == 0 && inputStr.length() > 3) {
-                    format.append(",");
-                }
-            }
-            format.reverse();
-            DecimalFormat formatter = new DecimalFormat(format.toString());
-
-            int inputInt = Integer.parseInt(inputStr);
-            window.getInputSizeTxt().setText(formatter.format(inputInt));
-
+            window.getInputSizeTxt().setText(formatTime(input));
         }
     }
+
 
     public static void validateInput() {
         if(window.getInputSizeTxt().getText().isEmpty()) {
@@ -68,7 +59,9 @@ public class WindowController {
         window.getExecutorServiceBtn().setEnabled(state);
     }
 
-    public static void generateArray() {
+    public static void generateArray() throws UnsupportedAudioFileException, LineUnavailableException, IOException, InterruptedException {
+        //App.playMusic("chiquitita");
+
         int length = Integer.parseInt(window.getInputSizeTxt().getText().replaceAll(",", ""));
         if(length > 200000 && !App.fastMode) {
             fastMode();
@@ -76,24 +69,6 @@ public class WindowController {
         App.generateArray(length);
 
         String arrayStr = Arrays.toString(App.inputArray).replaceAll("\\[|\\]|,|", "");
-
-        /*if(!App.fastMode) {
-            System.out.println(arrayStr.length());
-            int limit = arrayStr.length() / 138;
-            System.out.println(limit);
-
-            String cosa = "";
-            int i;
-            for(i = 0; i < limit ; i++) {
-                cosa += arrayStr.substring(i * 138, 138 + (i * 138));
-                cosa += "\n";
-            }
-            cosa += arrayStr.substring(i * 138);
-            window.getInputArrayTxtArea().setText(cosa);
-        }
-        else {
-            window.getInputArrayTxtArea().setText(arrayStr);
-        }*/
 
         window.getInputArrayTxtArea().setText(arrayStr);
 
@@ -103,13 +78,13 @@ public class WindowController {
     public static void clean() {
         window.getInputArrayTxtArea().setText("");
         window.getOutputArrayTxtArea().setText("");
-        window.getInputSizeTxt().setText("");
-        window.getMergeSortLabel().setText("");
-        window.getForkJoinLabel().setText("");
-        window.getExecutorServiceLabel().setText("");
-        setSortEnabled(false);
-        window.getCreateArrayBtn().setEnabled(false);
-        window.getInputSizeTxt().requestFocusInWindow();
+        //window.getInputSizeTxt().setText("");
+        //window.getMergeSortLabel().setText("");
+        //window.getForkJoinLabel().setText("");
+        //window.getExecutorServiceLabel().setText("");
+        //setSortEnabled(false);
+        //window.getCreateArrayBtn().setEnabled(false);
+        //window.getInputSizeTxt().requestFocusInWindow();
     }
 
     public static void fastMode() {
@@ -125,29 +100,43 @@ public class WindowController {
         window.getOutputArrayTxtArea().setLineWrap(!App.fastMode);
     }
 
+    public static String formatTime(long time) {
+        StringBuilder format = new StringBuilder();
+        String timeStr = String.valueOf(time);
+
+        for(int i = 0; i < timeStr.length(); i++) {
+            format.append("#");
+            if((i + 1) % 3 == 0 && timeStr.length() > 3) {
+                format.append(",");
+            }
+        }
+        format.reverse();
+        DecimalFormat formatter = new DecimalFormat(format.toString());
+        return formatter.format(time);
+    }
+
+    public static void printSortedArray(int[] array) {
+        String arrayStr = Arrays.toString(array).replaceAll("\\[|\\]|,|", "");
+        window.getOutputArrayTxtArea().setText(arrayStr);
+    }
+
     public static void mergeSort() {
         int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
 
         long time = App.mergeSort(newArray);
-        window.getMergeSortLabel().setText(time + " millis");
+        window.getMergeSortLabel().setText(formatTime(time) + " ns");
 
-        String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
-        window.getOutputArrayTxtArea().setText(arrayStr);
+        printSortedArray(newArray);
+
     }
 
     public static void forkJoin() {
         int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
-        /* ForkJoinMergeSortTask mergeSort = new ForkJoinMergeSortTask(newArray, newArray.length);
-
-        long initTime = System.currentTimeMillis();
-        int[] sortedArray = mergeSort.invoke();
-        long endTime = System.currentTimeMillis(); */
 
         long time = App.forkJoinMergeSort(newArray);
-        window.getForkJoinLabel().setText(time + " millis");
+        window.getForkJoinLabel().setText(formatTime(time) + " ns");
 
-        String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
-        window.getOutputArrayTxtArea().setText(arrayStr);
+        printSortedArray(newArray);
 
     }
 
@@ -155,15 +144,10 @@ public class WindowController {
         int[] newArray = Arrays.copyOf(App.inputArray, App.inputArray.length);
 
         long time = App.executorServiceMergeSort(newArray);;
-        if(time != -1) {
-            window.getExecutorServiceLabel().setText(time + " millis");
-        }
-        else {
-            window.getExecutorServiceLabel().setText("Error");
-        }
+        window.getExecutorServiceLabel().setText(formatTime(time) + " ns");
 
-        String arrayStr = Arrays.toString(newArray).replaceAll("\\[|\\]|,|", "");
-        window.getOutputArrayTxtArea().setText(arrayStr);
+        printSortedArray(newArray);
+
     }
 
 }

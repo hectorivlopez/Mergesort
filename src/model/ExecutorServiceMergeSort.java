@@ -8,25 +8,19 @@ import java.util.concurrent.Executors;
 
 
 public class ExecutorServiceMergeSort {
-    private final ExecutorService executor;
     private int[] array;
     private final int length;
 
-
     public ExecutorServiceMergeSort(int[] array, int length) {
-        this.executor = Executors.newCachedThreadPool();
         this.array = array;
         this.length = length;
     }
 
     public void sort() throws InterruptedException {
         Collection<ExecutorServiceTask> tasks = new ArrayList<>();
-        tasks.add(new ExecutorServiceTask(this.executor, this.array, this.length, 0));
-        this.executor.invokeAll(tasks);
-    }
+        tasks.add(new ExecutorServiceTask(this.array, this.length, 1));
+        App.executor.invokeAll(tasks);
 
-    public ExecutorService getExecutor() {
-        return executor;
     }
 
     public int[] getArray() {

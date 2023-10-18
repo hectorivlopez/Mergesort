@@ -7,13 +7,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 public class ExecutorServiceTask implements Callable<int[]> {
-    ExecutorService executor;
     private int[] array;
     private int length;
-    private static final int THRESHOLD = 4;
+    private static final int THRESHOLD = 2;
     private int count;
-    public ExecutorServiceTask(ExecutorService executor, int[] array, int length, int count) {
-        this.executor = executor;
+    public ExecutorServiceTask(int[] array, int length, int count) {
         this.array = array;
         this.length = length;
         this.count = count;
@@ -26,11 +24,10 @@ public class ExecutorServiceTask implements Callable<int[]> {
 
         if(this.length > 2) {
             if(this.count < THRESHOLD) {
-                this.count += 2;
                 Collection<ExecutorServiceTask> tasks = new ArrayList<>();
-                tasks.add(new ExecutorServiceTask(executor, left, left.length, this.count));
-                tasks.add(new ExecutorServiceTask(executor, right, right.length, this.count));
-                this.executor.invokeAll(tasks);
+                tasks.add(new ExecutorServiceTask(left, left.length, this.count + 1));
+                tasks.add(new ExecutorServiceTask(right, right.length, this.count + 1));
+                App.executor.invokeAll(tasks);
             }
             else {
                 MergeSort mergeLeft = new MergeSort(left, left.length);
